@@ -2673,7 +2673,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cFactor: 1
-  platformSize: {x: 120, y: 120}
+  platformSize: {x: 65, y: 120}
   uiHandler: {fileID: 775825251}
   cylinders:
   - {fileID: 1695943192}

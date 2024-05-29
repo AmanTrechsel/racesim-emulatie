@@ -101,7 +101,7 @@ public class Controller : MonoBehaviour
             offset += Quaternion.Euler(0, 0, -roll) * basePosition - basePosition;
 
             // Set the position of the cylinder with the offset
-            cylinders[i].position = basePosition + offset;
+            cylinders[i].position = basePosition + new Vector3(0, offset.y, 0);
         }
     }
 
