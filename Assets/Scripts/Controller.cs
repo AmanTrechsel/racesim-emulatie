@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class Controller : MonoBehaviour
 {
+  // Public variables
+  public float cFactor;
+
   // Serialized fields
   [SerializeField]
   private Vector2 platformSize;
@@ -93,8 +96,8 @@ public class Controller : MonoBehaviour
       float yPos = 0;
 
       // Add Pitch and Roll
-      yPos += roll / 45 * xCenter * ((i % 2 == 0) ? -1 : 1);
-      yPos += pitch / 45 * yCenter * ((i < 2) ? -1 : 1);
+      yPos += cFactor * roll / 45 * xCenter * ((i % 2 == 0) ? -1 : 1);
+      yPos += cFactor * pitch / 45 * yCenter * ((i < 2) ? -1 : 1);
 
       // X & Z position of the cylinder
       float xPos = (i % 2 == 0) ? xCenter : -xCenter;
@@ -170,7 +173,7 @@ public class Controller : MonoBehaviour
     }
 
     // Calculate the platform pitch and roll
-    platformPitch = 90 - Vector3.Angle(normal, Vector3.forward * normal.magnitude);
+    platformPitch = Vector3.Angle(normal, Vector3.up * normal.magnitude);
     platformRoll = 90 - Vector3.Angle(normal, Vector3.right * normal.magnitude);
   }
 
