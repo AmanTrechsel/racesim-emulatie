@@ -6,6 +6,7 @@ public class Controller : MonoBehaviour
 {
     // Public variables
     public float cFactor;
+    public bool cylinderOverride;
 
     // Serialized fields
     [SerializeField]
@@ -30,6 +31,13 @@ public class Controller : MonoBehaviour
     private float xCenter, yCenter;
     private Vector3 normal;
 
+    private enum VectorAxis
+    {
+      X,
+      Y,
+      Z
+    }
+
     // Start is called before the first frame update
     private void Start()
     {
@@ -46,7 +54,11 @@ public class Controller : MonoBehaviour
     {
         // Handle the platform and cylinders
         HandlePlatform();
-        HandleCylinders();
+
+        if (!cylinderOverride)
+        {
+          HandleCylinders();
+        }
 
         // Update the UI
         UpdateUI();
@@ -97,8 +109,8 @@ public class Controller : MonoBehaviour
             Vector3 basePosition = new Vector3((i % 2 == 0) ? xCenter : -xCenter, cylinderBaseY, (i < 2) ? yCenter : -yCenter);
 
             // Calculate the offset due to pitch and roll
-            Vector3 offset = Quaternion.Euler(pitch, 0, 0) * basePosition - basePosition;
-            offset += Quaternion.Euler(0, 0, -roll) * basePosition - basePosition;
+            Vector3 offset = RotateVector(basePosition, pitch, VectorAxis.X) - basePosition;
+            offset += RotateVector(basePosition, -roll, VectorAxis.Z) - basePosition;
 
             // Set the position of the cylinder with the offset
             cylinders[i].position = basePosition + new Vector3(0, offset.y, 0);
@@ -110,6 +122,55 @@ public class Controller : MonoBehaviour
     {
         uiHandler.UpdatePitch(platformPitch);
         uiHandler.UpdateRoll(platformRoll);
+    }
+
+    // Applies a rotation on a vector on the given axis
+    private Vector3 RotateVector(Vector3 baseVector, float degrees, VectorAxis axis)
+    {
+        // Convert to Radians
+        float radians = degrees * Mathf.Deg2Rad;
+
+        // Get Cos and Sin
+        float cos = Mathf.Cos(radians);
+        float sin = Mathf.Sin(radians);
+        
+        // Get the rotation matrix based on input
+        float[,] rotationMatrix = new float[0,0];
+
+        switch (axis)
+        {
+            case (VectorAxis.X):
+                rotationMatrix = new float[,]
+                {
+                    { 1, 0, 0 },
+                    { 0, cos, -sin },
+                    { 0, sin, cos }
+                };
+                break;
+            case (VectorAxis.Y):
+                rotationMatrix = new float[,]
+                {
+                    { cos, 0, sin },
+                    { 0, 1, 0 },
+                    { -sin, 0, cos }
+                };
+                break;
+            case (VectorAxis.Z):
+                rotationMatrix = new float[,]
+                {
+                    { cos, -sin, 0 },
+                    { sin, cos, 0 },
+                    { 0, 0, 1 }
+                };
+                break;
+        }
+        
+        // Apply the rotation matrix to the base vector and return
+        return new Vector3(
+            rotationMatrix[0, 0] * baseVector.x + rotationMatrix[0, 1] * baseVector.y + rotationMatrix[0, 2] * baseVector.z,
+            rotationMatrix[1, 0] * baseVector.x + rotationMatrix[1, 1] * baseVector.y + rotationMatrix[1, 2] * baseVector.z,
+            rotationMatrix[2, 0] * baseVector.x + rotationMatrix[2, 1] * baseVector.y + rotationMatrix[2, 2] * baseVector.z
+        );
     }
 
     // This method calculates the average position of the cylinders
@@ -161,11 +222,6 @@ public class Controller : MonoBehaviour
         // Calculate the platform pitch and roll
         platformPitch = Mathf.Atan2(normal.z, normal.y) * Mathf.Rad2Deg;
         platformRoll = Mathf.Atan2(normal.x, normal.y) * Mathf.Rad2Deg;
-
-        // Debug statements to check the calculated values
-        Debug.Log("Normal Vector: " + normal);
-        Debug.Log("Calculated Pitch: " + platformPitch);
-        Debug.Log("Calculated Roll: " + platformRoll);
     }
 
     // This method returns the vertices of the platform
