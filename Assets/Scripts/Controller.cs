@@ -105,16 +105,24 @@ public class Controller : MonoBehaviour
         // Iterate through each cylinder
         for (int i = 0; i < 4; i++)
         {
-            // Base position of the cylinder
-            Vector3 basePosition = new Vector3((i % 2 == 0) ? xCenter : -xCenter, cylinderBaseY, (i < 2) ? yCenter : -yCenter);
-
-            // Calculate the offset due to pitch and roll
-            Vector3 offset = RotateVector(basePosition, pitch, VectorAxis.X) - basePosition;
-            offset += RotateVector(basePosition, -roll, VectorAxis.Z) - basePosition;
-
             // Set the position of the cylinder with the offset
-            cylinders[i].position = basePosition + new Vector3(0, offset.y, 0);
+            cylinders[i].position = new Vector3((i % 2 == 0) ? xCenter : -xCenter, CalculateYPosition(i), (i < 2) ? yCenter : -yCenter);
         }
+    }
+
+    // This method is responsible for calculating the y position of the cylinder at the index position
+    private float CalculateYPosition(int index)
+    {
+        float pitchRad = pitch * Mathf.Deg2Rad;
+        float rollRad = roll * Mathf.Deg2Rad;
+
+        float pitchSin = Mathf.Sin(pitchRad) * cFactor;
+        float pitchCos = Mathf.Cos(pitchRad) * cFactor;
+
+        float rollSin = Mathf.Sin(rollRad) * cFactor;
+        float rollCos = Mathf.Cos(rollRad) * cFactor;
+
+        return pitchCos * cylinderBaseY + (index < 2 ? -1 : 1) * pitchSin * yCenter - rollCos * cylinderBaseY + (index % 2 == 0 ? -1 : 1) * rollSin * xCenter;
     }
 
     // This method is responsible for updating the UI
