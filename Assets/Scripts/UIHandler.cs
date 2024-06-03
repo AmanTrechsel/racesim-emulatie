@@ -8,6 +8,7 @@ public class UIHandler : MonoBehaviour
 {
   // Public fields
   public Vector2 labelOffset;
+  public bool hasControlOverPitchRoll;
 
   // Serialized fields
   [SerializeField]
@@ -44,13 +45,19 @@ public class UIHandler : MonoBehaviour
   // This method is responsible for setting the label of the pitch slider
   public void SetPitchSlider()
   {
-    sliderPitchLabel.text = "Pitch: " + pitchSlider.value.ToString("F2");
+    if (hasControlOverPitchRoll)
+    {
+      sliderPitchLabel.text = "Pitch: " + pitchSlider.value.ToString("F2");
+    }
   }
 
   // This method is responsible for setting the label of the roll slider
   public void SetRollSlider()
   {
-    sliderRollLabel.text = "Roll: " + rollSlider.value.ToString("F2");
+    if (hasControlOverPitchRoll)
+    {
+      sliderRollLabel.text = "Roll: " + rollSlider.value.ToString("F2");
+    }
   }
 
   // This method is responsible for updating the position of a cylinder of the given index
