@@ -6,6 +6,7 @@ public class Controller : MonoBehaviour
 {
     // Public variables
     public float cFactor;
+    public float minimumPosition;
     public bool cylinderOverride;
 
     // Serialized fields
@@ -24,12 +25,15 @@ public class Controller : MonoBehaviour
     private float pitch, roll;
     [SerializeField]
     private float cylinderBaseY;
+    [SerializeField]
+    private Camera camera;
 
     // Private variables
     private MeshFilter platformMeshFilter;
     private float platformPitch, platformRoll;
     private float xCenter, yCenter;
     private Vector3 normal;
+    private List<float> cylinderYPositionHistory;
 
     private enum VectorAxis
     {
@@ -47,19 +51,27 @@ public class Controller : MonoBehaviour
         // Calculate the center of the platform
         xCenter = platformSize.x / 2;
         yCenter = platformSize.y / 2;
+
+        // Initialize position history
+        cylinderYPositionHistory = new List<float>() { 0, 0, 0, 0 };
     }
 
     // Update is called once per frame
     private void Update()
     {
-        // Handle the platform and cylinders
+        // Handle the platform
         HandlePlatform();
 
+        // Only handle the cylinders if it is not being overridden
         if (!cylinderOverride)
         {
           HandleCylinders();
         }
+    }
 
+    // FixedUpdate is called once per physics update
+    private void FixedUpdate()
+    {
         // Update the UI
         UpdateUI();
     }
@@ -105,6 +117,9 @@ public class Controller : MonoBehaviour
         // Iterate through each cylinder
         for (int i = 0; i < 4; i++)
         {
+            // Store the current position of the cylinder for history
+            cylinderYPositionHistory[i] = cylinders[i].localPosition.y;
+
             // Set the position of the cylinder with the offset
             cylinders[i].position = new Vector3((i % 2 == 0) ? xCenter : -xCenter, CalculateYPosition(i), (i < 2) ? yCenter : -yCenter);
         }
@@ -130,6 +145,15 @@ public class Controller : MonoBehaviour
     {
         uiHandler.UpdatePitch(platformPitch);
         uiHandler.UpdateRoll(platformRoll);
+
+        // Iterate through each cylinder
+        for (int i = 0; i < 4; i++)
+        {
+            Transform cylinder = cylinders[i];
+            float speed = (cylinder.localPosition.y - cylinderYPositionHistory[i]) / 1;
+            uiHandler.SetCylinderPanelPosition(i, camera.WorldToScreenPoint(cylinder.position));
+            uiHandler.SetCylinderLabel(i, cylinder.localPosition.y + minimumPosition, speed);
+        }
     }
 
     // Applies a rotation on a vector on the given axis

@@ -6,6 +6,9 @@ using TMPro;
 
 public class UIHandler : MonoBehaviour
 {
+  // Public fields
+  public Vector2 labelOffset;
+
   // Serialized fields
   [SerializeField]
   private TextMeshProUGUI pitchText, rollText;
@@ -13,6 +16,10 @@ public class UIHandler : MonoBehaviour
   private TextMeshProUGUI sliderPitchLabel, sliderRollLabel;
   [SerializeField]
   private Slider pitchSlider, rollSlider;
+  [SerializeField]
+  private List<RectTransform> cylinderPanels;
+  [SerializeField]
+  private List<TextMeshProUGUI> cylinderLabels;
 
   // Update is called once per frame
   private void Update()
@@ -44,5 +51,17 @@ public class UIHandler : MonoBehaviour
   public void SetRollSlider()
   {
     sliderRollLabel.text = "Roll: " + rollSlider.value.ToString("F2");
+  }
+
+  // This method is responsible for updating the position of a cylinder of the given index
+  public void SetCylinderPanelPosition(int index, Vector2 newPosition)
+  {
+    cylinderPanels[index].anchoredPosition = newPosition + labelOffset;
+  }
+
+  // This method is responsible for updating the label of a cylinder of the given index
+  public void SetCylinderLabel(int index, float position, float speed)
+  {
+    cylinderLabels[index].text = $"{position.ToString("F2")} cm\n{speed.ToString("F2")} cm/s";
   }
 }
