@@ -35,6 +35,7 @@ var x_center: float
 var y_center: float
 var normal: Vector3
 var cylinder_y_position_history: Array = []
+var last_speed: Array[float] = [0,0,0,0]
 
 enum VectorAxis { X, Y, Z }
 
@@ -56,10 +57,11 @@ func _ready():
 
 func _process(delta):
 	# Handle the platform
-	#handle_platform()
+	handle_platform()
 	
-	set_pitch(ui_handler.get("pitch_slider").value)
-	set_roll(ui_handler.get("roll_slider").value)
+	if ui_handler.get("has_control_over_pitch_roll"):
+		set_pitch(ui_handler.get("pitch_slider").value)
+		set_roll(ui_handler.get("roll_slider").value)
 
 	# Only handle the cylinders if it is not being overridden
 	if not cylinder_override:
@@ -102,12 +104,9 @@ func handle_cylinders():
 			y_center if (i < 2) else -y_center
 		)
 
-func deg2rad(degrees: float) -> float:
-	return degrees * PI / 180
-
 func calculate_y_position(index: int) -> float:
-	var pitch_rad = deg2rad(pitch)
-	var roll_rad = deg2rad(roll)
+	var pitch_rad = deg_to_rad(pitch)
+	var roll_rad = deg_to_rad(roll)
 
 	var pitch_sin = sin(pitch_rad) * c_factor
 	var pitch_cos = cos(pitch_rad) * c_factor
@@ -122,50 +121,15 @@ func update_ui():
 	ui_handler.update_roll(platform_roll)
 
 	# Iterate through each cylinder
-	if (false):
-		for i in range(4):
-			var cylinder = cylinders[i]
-			var speed = (cylinder.translation.y - cylinder_y_position_history[i]) / 1
-			ui_handler.set_cylinder_panel_position(i, camera.unproject_position(cylinder.translation))
-			ui_handler.set_cylinder_label(i, cylinder.translation.y + minimum_position, speed)
-
-func rotate_vector(base_vector: Vector3, degrees: float, axis: int) -> Vector3:
-	# Convert to Radians
-	var radians = deg2rad(degrees)
-
-	# Get Cos and Sin
-	var cos = cos(radians)
-	var sin = sin(radians)
-	
-	var rotation_matrix = []
-
-	# Get the rotation matrix based on input
-	match axis:
-		VectorAxis.X:
-			rotation_matrix = [
-				[1, 0, 0],
-				[0, cos, -sin],
-				[0, sin, cos]
-			]
-		VectorAxis.Y:
-			rotation_matrix = [
-				[cos, 0, sin],
-				[0, 1, 0],
-				[-sin, 0, cos]
-			]
-		VectorAxis.Z:
-			rotation_matrix = [
-				[cos, -sin, 0],
-				[sin, cos, 0],
-				[0, 0, 1]
-			]
-		
-	# Apply the rotation matrix to the base vector and return
-	return Vector3(
-		rotation_matrix[0][0] * base_vector.x + rotation_matrix[0][1] * base_vector.y + rotation_matrix[0][2] * base_vector.z,
-		rotation_matrix[1][0] * base_vector.x + rotation_matrix[1][1] * base_vector.y + rotation_matrix[1][2] * base_vector.z,
-		rotation_matrix[2][0] * base_vector.x + rotation_matrix[2][1] * base_vector.y + rotation_matrix[2][2] * base_vector.z
-	)
+	for i in range(cylinders.size()):
+		var cylinder = cylinders[i]
+		var speed = (cylinder.position.y - cylinder_y_position_history[i]) / 1
+		if speed == 0 and cylinder_y_position_history[i] != 0:
+			speed = last_speed[i]
+			
+		ui_handler.set_cylinder_panel_position(i, camera.unproject_position(cylinder.position))
+		ui_handler.set_cylinder_label(i, cylinder.position.y + minimum_position, speed)
+		last_speed[i] = speed
 
 func get_average_position() -> Vector3:
 	# Initialize the average position
@@ -186,24 +150,21 @@ func get_average_position() -> Vector3:
 	# Return the average position
 	return average_position
 
-func calculate_mesh(vertices: Array) -> ArrayMesh:
-	# Create a new mesh
-	var mesh = ArrayMesh.new()
+func calculate_mesh(vertices: Array) -> Mesh:
+	var mesh = Mesh.new()  # Create a new mesh
+	var surface_tool = SurfaceTool.new()  # Create a surface tool
 
-	# Set the vertices and triangles of the mesh
-	var arrays = []
-	arrays.resize(Mesh.ARRAY_MAX)
-	arrays[Mesh.ARRAY_VERTEX] = PackedVector3Array(vertices)
-	arrays[Mesh.ARRAY_INDEX] = PackedInt32Array([0, 1, 2, 3, 4, 5])
+	# Define the primitive type (triangle fan is suitable for 4 points)
+	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 
-	# Add surface from arrays
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, PackedVector3Array(arrays))
+	# Add each point as a vertex
+	for vertex in vertices:
+		surface_tool.add_vertex(vertex)
+		
+	surface_tool.generate_normals()
 
-	# Calculate the normals of the mesh
-	#mesh.surface_get_arrays(0)[Mesh.ARRAY_NORMAL].recalculate_normals()
-
-	# Return the mesh
-	return mesh
+	# Finalize the mesh creation
+	return surface_tool.commit()
 
 func calculate_angles(vertices: Array):
 	for vertex in vertices:

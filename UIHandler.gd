@@ -26,8 +26,8 @@ var cylinder_labels: Array = []
 
 func _ready():
 	# Initialize references to UI components
-	cylinder_panels = [$CylinderPanel0, $CylinderPanel1, $CylinderPanel2, $CylinderPanel3]
-	cylinder_labels = [$CylinderLabel0, $CylinderLabel1, $CylinderLabel2, $CylinderLabel3]
+	cylinder_panels = [$UI/CylinderPanel0, $UI/CylinderPanel1, $UI/CylinderPanel2, $UI/CylinderPanel3]
+	cylinder_labels = [$UI/CylinderPanel0/CylinderLabel0, $UI/CylinderPanel1/CylinderLabel1, $UI/CylinderPanel2/CylinderLabel2, $UI/CylinderPanel3/CylinderLabel3]
 
 func _process(delta):
 	# Update the pitch and roll slider labels
@@ -54,7 +54,7 @@ func set_roll_slider():
 
 # This method is responsible for updating the position of a cylinder of the given index
 func set_cylinder_panel_position(index: int, new_position: Vector2):
-	cylinder_panels[index].rect_position = new_position + label_offset
+	cylinder_panels[index].position = new_position + label_offset
 
 # This method is responsible for updating the label of a cylinder of the given index
 func set_cylinder_label(index: int, position: float, speed: float):
