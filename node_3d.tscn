@@ -1,0 +1,230 @@
+[gd_scene load_steps=9 format=3 uid="uid://c6y78lvcesa3c"]
+
+[ext_resource type="Script" path="res://Controller.gd" id="1_8e108"]
+[ext_resource type="Script" path="res://UIHandler.gd" id="2_mf2ka"]
+[ext_resource type="Script" path="res://WebSocket.gd" id="3_52iiq"]
+
+[sub_resource type="Environment" id="Environment_2c4wj"]
+background_mode = 1
+background_color = Color(0.0470216, 0.0508711, 0.102456, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wjfsx"]
+albedo_color = Color(0, 1, 1, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_tgsbt"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_of1ak"]
+albedo_color = Color(100, 100, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_u8ggh"]
+albedo_color = Color(1, 0.643137, 0, 1)
+
+[node name="EmulatorScene" type="Node3D"]
+
+[node name="Camera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.34, 79.007)
+environment = SubResource("Environment_2c4wj")
+
+[node name="Controller" type="Node" parent="." node_paths=PackedStringArray("ui_handler", "platform", "inverse_platform_mesh_instance", "camera")]
+script = ExtResource("1_8e108")
+c_factor = 1.022
+minimum_position = 10.28
+platform_size = Vector2(65, 100)
+ui_handler = NodePath("../UIHandler")
+platform = NodePath("../Platform")
+inverse_platform_mesh_instance = NodePath("../Platform Inverse")
+pitch = 30.0
+camera = NodePath("../Camera")
+
+[node name="Cylinder +,+" type="MeshInstance3D" parent="Controller"]
+transform = Transform3D(-0.300256, 0, 0.953859, 0, 1, 0, -0.953859, 0, -0.300256, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_wjfsx")
+mesh = SubResource("SphereMesh_tgsbt")
+skeleton = NodePath("")
+
+[node name="Cylinder -,+" type="MeshInstance3D" parent="Controller"]
+transform = Transform3D(-0.300256, 0, 0.953859, 0, 1, 0, -0.953859, 0, -0.300256, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_wjfsx")
+mesh = SubResource("SphereMesh_tgsbt")
+skeleton = NodePath("")
+
+[node name="Cylinder +,-" type="MeshInstance3D" parent="Controller"]
+transform = Transform3D(-0.300256, 0, 0.953859, 0, 1, 0, -0.953859, 0, -0.300256, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_wjfsx")
+mesh = SubResource("SphereMesh_tgsbt")
+skeleton = NodePath("")
+
+[node name="Cylinder -,-" type="MeshInstance3D" parent="Controller"]
+transform = Transform3D(-0.300256, 0, 0.953859, 0, 1, 0, -0.953859, 0, -0.300256, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_wjfsx")
+mesh = SubResource("SphereMesh_tgsbt")
+skeleton = NodePath("")
+
+[node name="UIHandler" type="Node" parent="." node_paths=PackedStringArray("pitch_text", "roll_text", "slider_pitch_label", "slider_roll_label", "pitch_slider", "roll_slider")]
+script = ExtResource("2_mf2ka")
+label_offset = Vector2(-48, -80)
+has_control_over_pitch_roll = true
+pitch_text = NodePath("UI/Pitch")
+roll_text = NodePath("UI/Roll")
+slider_pitch_label = NodePath("UI/Pitch Slider Amount")
+slider_roll_label = NodePath("UI/Roll Slider Amount")
+pitch_slider = NodePath("UI/Pitch Slider")
+roll_slider = NodePath("UI/Roll Slider")
+
+[node name="UI" type="Control" parent="UIHandler"]
+clip_contents = true
+custom_minimum_size = Vector2(800, 600)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Pitch" type="Label" parent="UIHandler/UI"]
+top_level = true
+layout_mode = 0
+offset_left = 16.0
+offset_top = 8.0
+offset_right = 56.0
+offset_bottom = 31.0
+
+[node name="Roll" type="Label" parent="UIHandler/UI"]
+top_level = true
+layout_mode = 0
+offset_left = 16.0
+offset_top = 40.0
+offset_right = 56.0
+offset_bottom = 63.0
+
+[node name="Pitch Slider Amount" type="Label" parent="UIHandler/UI"]
+top_level = true
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -104.0
+offset_right = 56.0
+offset_bottom = -81.0
+grow_vertical = 0
+
+[node name="Roll Slider Amount" type="Label" parent="UIHandler/UI"]
+top_level = true
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -56.0
+offset_right = 56.0
+offset_bottom = -33.0
+grow_vertical = 0
+
+[node name="Pitch Slider" type="HSlider" parent="UIHandler/UI"]
+top_level = true
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -80.0
+offset_right = 464.0
+offset_bottom = -64.0
+grow_vertical = 0
+min_value = -7.0
+max_value = 7.0
+step = 0.01
+
+[node name="Roll Slider" type="HSlider" parent="UIHandler/UI"]
+top_level = true
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -32.0
+offset_right = 464.0
+offset_bottom = -16.0
+grow_vertical = 0
+min_value = -7.0
+max_value = 7.0
+step = 0.01
+
+[node name="CylinderPanel0" type="Panel" parent="UIHandler/UI"]
+layout_mode = 0
+offset_right = 96.0
+offset_bottom = 64.0
+
+[node name="CylinderLabel0" type="Label" parent="UIHandler/UI/CylinderPanel0"]
+layout_mode = 0
+offset_right = 96.0
+offset_bottom = 64.0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CylinderPanel1" type="Panel" parent="UIHandler/UI"]
+layout_mode = 0
+offset_right = 96.0
+offset_bottom = 64.0
+
+[node name="CylinderLabel1" type="Label" parent="UIHandler/UI/CylinderPanel1"]
+layout_mode = 0
+offset_right = 96.0
+offset_bottom = 64.0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CylinderPanel2" type="Panel" parent="UIHandler/UI"]
+layout_mode = 0
+offset_right = 96.0
+offset_bottom = 64.0
+
+[node name="CylinderLabel2" type="Label" parent="UIHandler/UI/CylinderPanel2"]
+layout_mode = 0
+offset_right = 96.0
+offset_bottom = 64.0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CylinderPanel3" type="Panel" parent="UIHandler/UI"]
+layout_mode = 0
+offset_right = 96.0
+offset_bottom = 64.0
+
+[node name="CylinderLabel3" type="Label" parent="UIHandler/UI/CylinderPanel3"]
+layout_mode = 0
+offset_right = 96.0
+offset_bottom = 64.0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Platform" type="MeshInstance3D" parent="."]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, -1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_of1ak")
+
+[node name="Platform Inverse" type="MeshInstance3D" parent="."]
+material_override = SubResource("StandardMaterial3D_u8ggh")
+
+[node name="Sunlight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+light_energy = 1.595
+light_indirect_energy = 0.0
+directional_shadow_mode = 0
+directional_shadow_fade_start = 0.0
+directional_shadow_max_distance = 0.0
+
+[node name="Shadowlight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
+light_color = Color(0.288518, 0.288518, 0.288518, 1)
+light_energy = 1.595
+light_indirect_energy = 0.0
+directional_shadow_mode = 0
+directional_shadow_max_distance = 0.0
+
+[node name="WebSocket" type="Node" parent="." node_paths=PackedStringArray("controller", "ui_handler")]
+script = ExtResource("3_52iiq")
+controller = NodePath("../Controller")
+ui_handler = NodePath("../UIHandler")

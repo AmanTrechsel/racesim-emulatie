@@ -16,16 +16,20 @@ wss.on('connection', function(ws) {
     if (typeof(data) === "string") {
       // client sent a string
       console.log("string received from client -> '" + data + "'");
-
     } else {
       console.log("binary received from client -> " + Array.from(data).join(", ") + "");
     }
+
+    // Broadcast the message to all other clients
+    wss.clients.forEach(function each(client) {
+      if (client !== ws && client.readyState === WebSocket.OPEN) {
+        client.send(data);
+      }
+    });
   });
 
   ws.on('close', function() {
     console.log("client left.");
-    clearInterval(textInterval);
-    clearInterval(binaryInterval);
   });
 });
 
